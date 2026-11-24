@@ -32,7 +32,13 @@ const newsletterSchema = z.object({
   consent: z.literal(true, { message: "Tick the box to confirm you want updates." }),
 });
 
-type FieldErrors = Record<string, string | undefined>;
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  return mounted;
+}
 
 function issues(error: z.ZodError): FieldErrors {
   const next: FieldErrors = {};
@@ -130,6 +136,7 @@ const keptNote =
 
 export function ContactForm({ defaultTopic = "General enquiry" }: { defaultTopic?: string }) {
   const base = useId();
+  const mounted = useMounted();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [done, setDone] = useState("");
   const [topic, setTopic] = useState(defaultTopic);
@@ -137,6 +144,10 @@ export function ContactForm({ defaultTopic = "General enquiry" }: { defaultTopic
   useEffect(() => {
     setTopic(defaultTopic);
   }, [defaultTopic]);
+
+  if (!mounted) {
+    return <div className="min-h-80 border border-line bg-mist" aria-hidden="true" />;
+  }
 
   if (done) {
     return (
@@ -289,6 +300,7 @@ export function ContactForm({ defaultTopic = "General enquiry" }: { defaultTopic
 
 export function InvolveForm({ defaultInterest = "Volunteering" }: { defaultInterest?: string }) {
   const base = useId();
+  const mounted = useMounted();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [done, setDone] = useState("");
   const [interest, setInterest] = useState(defaultInterest);
@@ -296,6 +308,10 @@ export function InvolveForm({ defaultInterest = "Volunteering" }: { defaultInter
   useEffect(() => {
     if (defaultInterest) setInterest(defaultInterest);
   }, [defaultInterest]);
+
+  if (!mounted) {
+    return <div className="min-h-80 border border-line bg-mist" aria-hidden="true" />;
+  }
 
   if (done) {
     return <Success title="Thank you for offering to take part." body={keptNote} text={done} onReset={() => setDone("")} />;
@@ -432,8 +448,13 @@ export function InvolveForm({ defaultInterest = "Volunteering" }: { defaultInter
 
 export function NewsletterForm() {
   const base = useId();
+  const mounted = useMounted();
   const [errors, setErrors] = useState<FieldErrors>({});
   const [done, setDone] = useState(false);
+
+  if (!mounted) {
+    return <div className="min-h-40 border border-paper/20" aria-hidden="true" />;
+  }
 
   if (done) {
     return (
